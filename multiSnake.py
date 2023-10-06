@@ -63,6 +63,7 @@ def runGame():
     wormCoords2 = setStartWormPos()
     
     direction = RIGHT
+    direction2 = RIGHT
 
     # Start the apple in a random place.
     apple = getRandomLocation()
@@ -82,26 +83,33 @@ def runGame():
                 elif event.key == K_DOWN and direction != UP:
                     direction = DOWN
 
-                elif event.key == K_a and direction != RIGHT:
-                    direction = LEFT
-                elif event.key == K_d and direction != LEFT:
-                    direction = RIGHT
-                elif event.key == K_w and direction != DOWN:
-                    direction = UP
-                elif event.key == K_s and direction != UP:
-                    direction = DOWN
-                
+                elif event.key == K_a and direction2 != RIGHT:
+                    direction2 = LEFT
+                elif event.key == K_d and direction2 != LEFT:
+                    direction2 = RIGHT
+                elif event.key == K_w and direction2 != DOWN:
+                    direction2 = UP
+                elif event.key == K_s and direction2 != UP:
+                    direction2 = DOWN
                 
                 elif event.key == K_ESCAPE:
                     terminate()
-
 
 
         # Check if worms hit wall or self
         worm = checkWormSelfCollison(wormCoords)
         worm2 = checkWormSelfCollison(wormCoords2)
 
-        if (worm or worm2):
+        wormColor = GREEN
+        worm1Color = BLUE
+
+        if (worm):
+            wormColor = WHITE
+
+        if (worm2):
+            worm1Color = WHITE
+
+        if (worm and worm2):
             # Game over
             return
 
@@ -116,20 +124,23 @@ def runGame():
             apple2 = getRandomLocation()
 
         # Move worms
+        #if (worm == None):
         newHead = moveWorm(direction, wormCoords)
-        newHead2 = moveWorm(direction, wormCoords2)
-
-        
         wormCoords.insert(0, newHead)   #have already removed the last segment
+        
+        #if (worm2 == None):
+        newHead2 = moveWorm(direction2, wormCoords2)
         wormCoords2.insert(0, newHead2)   #have already removed the last segment
 
+        
         DISPLAYSURF.fill(BGCOLOR)
         drawGrid()
-        drawWorm(wormCoords, DARKGREEN, GREEN)
-        drawWorm(wormCoords2, DARKBLUE, BLUE)
+        drawWorm(wormCoords, DARKGREEN, wormColor)
+        drawWorm(wormCoords2, DARKBLUE, worm1Color)
         drawApple(apple)
         drawApple(apple2)
-        drawScore(len(wormCoords) - 3)
+        drawScore(len(wormCoords) - 3, 1, GREEN)
+        drawScore(len(wormCoords2) - 3, 0, BLUE)
         pygame.display.update()
         FPSCLOCK.tick(FPS)
 
@@ -150,7 +161,7 @@ def checkWormSelfCollison(wormCoords):
             return True# game over
         for wormBody in wormCoords[1:]:
             if wormBody['x'] == wormCoords[HEAD]['x'] and wormBody['y'] == wormCoords[HEAD]['y']:
-                return True# game over
+                return True # game over
 
 
 def checkAppleCollison(wormCoords, apple, apple2):
@@ -203,7 +214,7 @@ def checkForKeyPress():
 
 def showStartScreen():
     titleFont = pygame.font.Font('freesansbold.ttf', 100)
-    titleSurf1 = titleFont.render('Wormy', True, WHITE, BLUE)
+    titleSurf1 = titleFont.render('Multi-Snake', True, WHITE, BLUE)
     titleSurf2 = titleFont.render('Agents', True, YELLOW)
 
     degrees1 = 0
@@ -261,10 +272,15 @@ def showGameOverScreen():
             pygame.event.get() # clear event queue
             return
 
-def drawScore(score):
-    scoreSurf = BASICFONT.render('Score: %s' % (score), True, WHITE)
+def drawScore(score, position, scoreColor):
+    scoreSurf = BASICFONT.render('Score: %s' % (score), True, scoreColor)
     scoreRect = scoreSurf.get_rect()
-    scoreRect.topleft = (WINDOWWIDTH - 120, 10)
+    
+    if position == 0:
+        scoreRect.topleft = (WINDOWWIDTH - 120, 10)
+    else:
+        scoreRect.topright = (120, 10)
+
     DISPLAYSURF.blit(scoreSurf, scoreRect)
 
 
